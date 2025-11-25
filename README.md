@@ -77,7 +77,6 @@ This project provides a professional Object-Oriented Java implementation of mult
 -   **Performance Metrics**: Timing and iteration tracking
 -   **Flexible Input**: Read from various puzzle formats (Kaggle, Serg, Magictour datasets)
 -   **DLX Optimization**: Dancing Links with intelligent column selection
--   **Genetic Algorithm**: Meta-heuristic approach with local search
 -   **Heuristic Column Selection**: Proven MRV + Degree strategy
 
 ### 🔧 Solver
@@ -145,11 +144,11 @@ mvn package
 
 ### Running the Application
 
-**Solve puzzles from a CSV file:**
+**Solve puzzles from a text file (dataset from [tdoku](https://github.com/t-dillon/tdoku/blob/master/data.zip)):**
 
 ```sh
 mvn exec:java -Dexec.mainClass="com.sudoku.SudokuSolverApp" \
-  -Dexec.args="data/puzzles0_kaggle output/results.txt"
+  -Dexec.args="data/puzzles0_kaggle.txt output/results.txt"
 ```
 
 **Programmatic Usage (Java code):**
@@ -176,35 +175,50 @@ if (solved) {
 
 ### Input Format
 
-CSV files should have the format:
+Text files should have one puzzle per line (81 characters for standard 9×9 Sudoku):
 
 ```
-source,puzzles
-1,4.3..6.1..1...4.8.8.4......5.4......7.1.7.5.......9.4.7.8...7..4.5.3.2.....7.6.
-2,..3..4.6..5.28....7893.6.5..4...9..6............6..59..1.....2.8..4.......492..1.
+4.3..6.1..1...4.8.8.4......5.4......7.1.7.5.......9.4.7.8...7..4.5.3.2.....7.6..
+..3..4.6..5.28....7893.6.5..4...9..6............6..59..1.....2.8..4.......492..1.
 ```
 
 Each puzzle is an 81-character string where:
 
--   `.` = empty cell
+-   `.` or `0` = empty cell
 -   `1-9` = given digit
+-   `A-Z` or `a-z` = support for larger boards (16×16, etc.)
 
 ### Output
 
-Solutions are printed in a readable format:
+Solutions are saved to a text file with both original and solved puzzles:
 
 ```
-5 3 | 4 | 6 7 | 8 9 2
-6 7 | 2 | 1 9 | 5 3 4
-2 9 | 8 | 5 3 | 4 6 1
-------+-------+------
-8 5 | 9 | 6 2 | 7 1 3
-4 2 | 6 | 8 1 | 3 9 5
-7 1 | 3 | 9 4 | 2 8 6
-------+-------+------
-9 6 | 7 | 3 5 | 1 2 8
-1 4 | 5 | 2 8 | 6 7 9
-3 8 | 1 | 7 6 | 9 4 5
+=== Puzzle 1 ===
+Board Size: 9x9
+
+Original Puzzle:
+. 5 . . 8 3 . 1 7
+. . . 1 . . 4 . .
+3 . 4 . . 5 6 . 8
+. . . . 3 . . . 9
+. 9 . 8 2 4 5 . .
+. . 6 . . . . 7 .
+. . 9 . . . . 5 .
+. . 7 2 9 . . 8 6
+1 . 3 6 . 7 2 . 4
+
+Solved Puzzle:
+6 5 2 4 8 3 9 1 7
+9 7 8 1 6 2 4 3 5
+3 1 4 9 7 5 6 2 8
+8 2 5 7 3 6 1 4 9
+7 9 1 8 2 4 5 6 3
+4 3 6 5 1 9 8 7 2
+2 6 9 3 4 8 7 5 1
+5 4 7 2 9 1 3 8 6
+1 8 3 6 5 7 2 9 4
+
+----------------------------------------
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -215,42 +229,34 @@ Solutions are printed in a readable format:
 sudoku/
 ├── src/main/java/com/sudoku/
 │   ├── model/
-│   │   ├── Board.java           # Sudoku board (flexible dimensions)
-│   │   └── Cell.java            # Individual cell model
+│   │   ├── Board.java                       # Sudoku board (flexible dimensions)
+│   │   └── Cell.java                        # Individual cell model
 │   │
 │   ├── solver/
-│   │   └── DLXSudokuSolver.java # Dancing Links solver
+│   │   └── DLXSudokuSolver.java            # Dancing Links solver
 │   │
-│   ├── dlx/                      # Dancing Links implementation
-│   │   ├── DLX.java             # Core algorithm
-│   │   ├── Node.java            # Matrix node
-│   │   ├── Column.java          # Column header
+│   ├── dlx/                                 # Dancing Links implementation
+│   │   ├── DLX.java                        # Core algorithm
+│   │   ├── Node.java                       # Matrix node
+│   │   ├── Column.java                     # Column header
 │   │   ├── selector/
-│   │   │   ├── ColumnSelector.java          # Interface
-│   │   │   ├── SmallestColumnSelector.java  # MRV heuristic
-│   │   │   └── MLColumnSelector.java        # ML-based selection
+│   │   │   ├── ColumnSelector.java         # Interface
+│   │   │   ├── SmallestColumnSelector.java # MRV heuristic
+│   │   │   └── HeuristicColumnSelector.java # Heuristic-based selection
 │   │   ├── features/
-│   │   │   └── ColumnFeatureExtractor.java  # Feature extraction
+│   │   │   └── ColumnFeatureExtractor.java # Feature extraction
 │   │   └── model/
-│   │       └── HeuristicModel.java            # Heuristic scoring
+│   │       └── HeuristicModel.java         # Heuristic scoring
 │   │
 │   ├── io/
-│   │   ├── PuzzleReader.java    # Efficient CSV streaming
-│   │   └── PuzzleWriter.java    # Solution output
+│   │   ├── PuzzleReader.java               # Efficient text streaming with auto-detection
+│   │   └── PuzzleWriter.java               # Solution output
 │   │
-│   └── SudokuSolverApp.java     # Main CLI application
+│   └── SudokuSolverApp.java                # Main CLI application
 │
-├── data/                         # Puzzle datasets
-│   ├── puzzles0_kaggle/
-│   ├── puzzles1_unbiased/
-│   ├── puzzles2_17_clue/
-│   ├── puzzles3_magictour_top1465/
-│   ├── puzzles4_forum_hardest_1905/
-│   └── ... (more datasets)
-│
-├── output/                       # Solutions directory
-├── pom.xml                       # Maven configuration
-└── README.md                     # This file
+├── .gitignore                               # Git ignore rules
+├── pom.xml                                  # Maven configuration
+└── README.md                                # This file
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -263,19 +269,33 @@ The solver uses **Dancing Links**, an efficient implementation of Algorithm X by
 
 **How it works:**
 
-1. **Problem Formulation**: Each cell, row, column, and 3×3 box becomes a constraint
-2. **Matrix Construction**: Creates a sparse matrix linking cells to constraints
-3. **Backtracking Search**: Uses efficient node removal/restoration to explore possibilities
-4. **Column Selection**: Chooses columns strategically using heuristics:
-    - **MRV (Minimum Remaining Values)**: Select most constrained column first
-    - **Degree Heuristic**: Consider which constraints are affected
-    - **Result**: Dramatically reduces search space
+1. **Problem Formulation**: Convert Sudoku to exact cover
+
+    - Cell constraint: Each cell must have exactly one value
+    - Row constraint: Each row must contain digits 1-N exactly once
+    - Column constraint: Each column must contain digits 1-N exactly once
+    - Box constraint: Each 3×3 box must contain digits 1-9 exactly once
+
+2. **Matrix Construction**: Creates a sparse matrix (4N² columns, each cell-value pair becomes a row)
+
+    - Column indices map to constraints
+    - Row entries link cells to their constraints
+
+3. **Backtracking Search**: Uses efficient node removal/restoration
+
+    - Cover/uncover operations: O(1) with doubly-linked lists
+    - Avoids full matrix recreation
+
+4. **Column Selection Strategy**:
+    - **SmallestColumnSelector**: Select column with minimum size (MRV heuristic)
+    - **HeuristicColumnSelector**: Weighted scoring for intelligent selection
 
 **Performance:**
 
--   **Complexity**: O(n²) average case
--   **Typical Speed**: Solves most puzzles in milliseconds
--   **Scalability**: Works efficiently for all Sudoku difficulty levels from easy to extreme
+-   **Time Complexity**: O(n²) average case, exponential worst case
+-   **Typical Speed**: Solves most 9×9 puzzles in milliseconds
+-   **Scalability**: Works efficiently for 16×16, 25×25, and larger boards
+-   **Memory**: Sparse matrix representation is memory-efficient
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

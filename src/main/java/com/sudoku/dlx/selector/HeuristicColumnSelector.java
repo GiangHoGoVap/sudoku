@@ -4,11 +4,11 @@ import com.sudoku.dlx.Column;
 import com.sudoku.dlx.features.ColumnFeatureExtractor;
 import com.sudoku.dlx.model.HeuristicModel;
 
-public class MLColumnSelector implements ColumnSelector {
+public class HeuristicColumnSelector implements ColumnSelector {
 
     private final HeuristicModel model;
 
-    public MLColumnSelector(HeuristicModel model) {
+    public HeuristicColumnSelector(HeuristicModel model) {
         this.model = model;
     }
 

@@ -2,7 +2,7 @@ package com.sudoku.solver;
 
 import com.sudoku.dlx.DLX;
 import com.sudoku.dlx.model.HeuristicModel;
-import com.sudoku.dlx.selector.MLColumnSelector;
+import com.sudoku.dlx.selector.HeuristicColumnSelector;
 import com.sudoku.model.Board;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class DLXSudokuSolver {
         int N = board.getSize();
 
         int cols = 4 * N * N;
-        DLX dlx = new DLX(cols, new MLColumnSelector(new HeuristicModel()));
+        DLX dlx = new DLX(cols, new HeuristicColumnSelector(new HeuristicModel()));
 
         // Maps rowID → (r, c, v)
         List<int[]> rowMap = new ArrayList<>();
